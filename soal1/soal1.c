@@ -84,6 +84,8 @@ int main()
                                 "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download",
                                 "-O", filmZip, NULL};
                 execv("/bin/wget", argv);
+
+                while (wait(NULL) > 0);
             }
             else if (pid1 > 0 && pid2 == 0)
             {
@@ -118,6 +120,8 @@ int main()
             {
                 char *argv[] = {"unzip", "-j", filmZip, "*.mp4", "-d", filmPath, NULL};
                 execv("/bin/unzip", argv);
+
+                while (wait(NULL) > 0);
             }
             else if (pid1 > 0 && pid2 == 0)
             {
