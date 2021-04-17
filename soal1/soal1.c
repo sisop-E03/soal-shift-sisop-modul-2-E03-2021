@@ -80,12 +80,12 @@ int main()
 
             if (pid1 == 0 && pid2 > 0)
             {
-                char *argv[] = {"wget", "--no-check-certificate", "-o", "/dev/null",
-                                "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download",
-                                "-O", filmZip, NULL};
-                execv("/bin/wget", argv);
-
                 while (wait(NULL) > 0);
+                
+                char *argv[] = {"wget", "--no-check-certificate", "-o", "/dev/null",
+                                "https://drive.google.com/uc?id=1ZG8nRBRPquhYXq_sISdsVcXx5VdEgi-J&export=download",
+                                "-O", musicZip, NULL};
+                execv("/bin/wget", argv);
             }
             else if (pid1 > 0 && pid2 == 0)
             {
@@ -97,8 +97,8 @@ int main()
             else if (pid1 == 0 && pid2 == 0)
             {
                 char *argv[] = {"wget", "--no-check-certificate", "-o", "/dev/null",
-                                "https://drive.google.com/uc?id=1ZG8nRBRPquhYXq_sISdsVcXx5VdEgi-J&export=download",
-                                "-O", musicZip, NULL};
+                                "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download",
+                                "-O", filmZip, NULL};
                 execv("/bin/wget", argv);
             }
 
@@ -118,10 +118,10 @@ int main()
 
             if (pid1 == 0 && pid2 > 0)
             {
-                char *argv[] = {"unzip", "-j", filmZip, "*.mp4", "-d", filmPath, NULL};
-                execv("/bin/unzip", argv);
-
                 while (wait(NULL) > 0);
+
+                char *argv[] = {"unzip", "-j", musicZip, "*.mp3", "-d", musicPath, NULL};
+                execv("/bin/unzip", argv);
             }
             else if (pid1 > 0 && pid2 == 0)
             {
@@ -130,11 +130,9 @@ int main()
             }
             else if (pid1 == 0 && pid2 == 0)
             {
-                char *argv[] = {"unzip", "-j", musicZip, "*.mp3", "-d", musicPath, NULL};
+                char *argv[] = {"unzip", "-j", filmZip, "*.mp4", "-d", filmPath, NULL};
                 execv("/bin/unzip", argv);
             }
-
-            while (wait(NULL) > 0);
         }
 
         if (now.tm_mday == bdayMday && now.tm_mon == bdayMon && now.tm_hour == bdayHour &&
@@ -174,8 +172,6 @@ int main()
                                 filmZip, photoZip, musicZip, NULL};
                 execv("/bin/rm", argv);
             }
-
-            while (wait(NULL) > 0);
         }
 
         sleep(1);
