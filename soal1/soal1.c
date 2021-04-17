@@ -136,7 +136,7 @@ int main()
         if (now.tm_mday == bdayMday && now.tm_mon == bdayMon && now.tm_hour == bdayHour &&
             now.tm_min == bdayMin && now.tm_sec == bdaySec)
         {
-            pid_t pid1, pid2;
+            pid_t pid1;
 
             pid1 = fork();
             if (pid1 < 0)
