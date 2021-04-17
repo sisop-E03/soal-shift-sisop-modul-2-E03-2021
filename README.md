@@ -22,6 +22,210 @@ E. Untuk memudahkan Steven, ia ingin semua hal di atas berjalan otomatis 6 jam s
 F. Setelah itu pada waktu ulang tahunnya Stevany, semua folder akan di zip dengan nama Lopyu_Stevany.zip dan semua folder akan di delete(sehingga hanya menyisakan .zip).
    Kemudian Steven meminta bantuanmu yang memang sudah jago sisop untuk membantunya mendapatkan hati Stevany. Bantu Woy!!
 
+### Penyelesaian
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <string.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+```
+Di awal, dilakukan include header files yang diperlukan.
+```c
+int main()
+{
+    pid_t pid, sid;
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid > 0)
+    {
+        exit(EXIT_SUCCESS);
+    }
+
+    umask(0);
+
+    sid = setsid();
+    if (sid < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    if ((chdir("/tmp")) < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+	...
+
+}
+```
+Di dalam fungsi main, program dibuat menjadi daemon process sehingga bisa berjalan di background.
+```c
+int bdayMday = 9;
+int bdayMon = 4 - 1;
+int bdayHour = 22;
+int bdayMin = 22;
+int bdaySec = 0;
+
+char *filmPath = "./Fylm";
+char *photoPath = "./Pyoto";
+char *musicPath = "./Musyik";
+char *filmZip = "film.zip";
+char *photoZip = "photo.zip";
+char *musicZip = "music.zip";
+```
+Variabel yang digunakan untuk menyimpan ulang tahun, nama folder, dan nama file zip dibuat.
+```c
+while (1)
+    {
+        time_t t = time(NULL);
+        struct tm now = *localtime(&t);
+
+        if (now.tm_mday == bdayMday && now.tm_mon == bdayMon && now.tm_hour == bdayHour - 6 &&
+            now.tm_min == bdayMin && now.tm_sec == bdaySec)
+        {
+            ...
+        }
+
+        if (now.tm_mday == bdayMday && now.tm_mon == bdayMon && now.tm_hour == bdayHour &&
+            now.tm_min == bdayMin && now.tm_sec == bdaySec)
+        {
+            ...
+        }
+
+        sleep(1);
+    }
+```
+Di dalam loop utama, pertama waktu saat ini diambil dan disimpan ke variable `now`. Kemudian dilakukan pengecekan apakah waktu saat ini 6 jam sebelum ulang tahun atau sama dengan ulang tahun. Loop utama ini dijalankan setiap satu detik.
+```c
+pid_t pid1, pid2;
+
+pid1 = fork();
+if (pid1 < 0)
+{
+    exit(EXIT_FAILURE);
+}
+
+pid2 = fork();
+if (pid2 < 0)
+{
+    exit(EXIT_FAILURE);
+}
+
+if (pid1 == 0 && pid2 > 0)
+{
+    while (wait(NULL) > 0);
+    
+    char *argv[] = {"wget", "--no-check-certificate", "-o", "/dev/null",
+                    "https://drive.google.com/uc?id=1ZG8nRBRPquhYXq_sISdsVcXx5VdEgi-J&export=download",
+                    "-O", musicZip, NULL};
+    execv("/bin/wget", argv);
+}
+else if (pid1 > 0 && pid2 == 0)
+{
+    char *argv[] = {"wget", "--no-check-certificate", "-o", "/dev/null",
+                    "https://drive.google.com/uc?id=1FsrAzb9B5ixooGUs0dGiBr-rC7TS9wTD&export=download",
+                    "-O", photoZip, NULL};
+    execv("/bin/wget", argv);
+}
+else if (pid1 == 0 && pid2 == 0)
+{
+    char *argv[] = {"wget", "--no-check-certificate", "-o", "/dev/null",
+                    "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download",
+                    "-O", filmZip, NULL};
+    execv("/bin/wget", argv);
+}
+
+while (wait(NULL) > 0);
+```
+Jika waktu saat ini 6 jam kurang dari ulang tahun, maka program akan di-fork 2 kali sehingga mempunyai 2 child dan 1 grandchild. Di masing-masing process tersebut dilakukan download file zip film, foto dan musik yang akan disimpan dengan nama sesuai dengan variable `filmZip`, `photoZip`, dan `musicZip`. Tetapi di child yang pertama, akan menunggu process grandchild selesai sebelum menjalankan download. Parent process juga akan menunggu semua process child selesai sebelum melanjutkan eksekusi.
+```c
+pid1 = fork();
+if (pid1 < 0)
+{
+    exit(EXIT_FAILURE);
+}
+
+pid2 = fork();
+if (pid2 < 0)
+{
+    exit(EXIT_FAILURE);
+}
+
+if (pid1 == 0 && pid2 > 0)
+{
+    while (wait(NULL) > 0);
+
+    char *argv[] = {"unzip", "-j", musicZip, "*.mp3", "-d", musicPath, NULL};
+    execv("/bin/unzip", argv);
+}
+else if (pid1 > 0 && pid2 == 0)
+{
+    char *argv[] = {"unzip", "-j", photoZip, "*.jpg", "-d", photoPath, NULL};
+    execv("/bin/unzip", argv);
+}
+else if (pid1 == 0 && pid2 == 0)
+{
+    char *argv[] = {"unzip", "-j", filmZip, "*.mp4", "-d", filmPath, NULL};
+    execv("/bin/unzip", argv);
+}
+```
+Setelah download selesai, maka akan parent akan kembali di-fork 2 kali. Di masing-masing keturunannya, akan dilakukan unzip file-file zip ke dalam folder yang disimpan di variable `filmPath`, `photoPath`, `musicPath`. Dalam kasus dimana folder belum ada, maka unzip akan membuat folder-folder tersebut. Sama seperti sebelumnya, child pertama akan menunggu process grandchild selesai dulu sebelum menjalankan unzip.
+```c
+pid_t pid1;
+
+pid1 = fork();
+if (pid1 < 0)
+{
+    exit(EXIT_FAILURE);
+}
+
+if (pid1 == 0)
+{
+    char *username = malloc(33 * sizeof(char));
+    cuserid(username);
+
+	 char *targetPath = malloc(50 * sizeof(char));
+	 sprintf(targetPath, "/home/%s/Lopyu_Stevany.zip", username);
+
+    char *argv[] = {"zip", "-r", targetPath, filmPath, photoPath, musicPath, NULL};
+    execv("/bin/zip", argv);
+}
+
+while (wait(NULL) > 0);
+```
+Apabila waktu saat ini sama dengan waktu ulang tahun, program akan di-fork. Di dalam process anaknya, pertama username dari user yang menjalankan program diambil kemudian digabungkan dengan nama zip akhirnya dan disimpan di `targetPath`. Kemudian folder film, foto, dan musik di-zip dengan nama yang sesuai dengan `targetPath`. Parent process akan menunggu hingga proses zip selesai.
+```c
+pid1 = fork();
+if (pid1 < 0)
+{
+    exit(EXIT_FAILURE);
+}
+
+if (pid1 == 0)
+{
+    char *argv[] = {"rm", "-r", filmPath, photoPath, musicPath,
+                    filmZip, photoZip, musicZip, NULL};
+    execv("/bin/rm", argv);
+}
+```
+Setelah zip selesai, maka program kembali di-fork. folder dan file zip yang dihasilkan process sebelumnya kecuali file zip akhir akan dihapus di process anaknya. 
 
 ## Soal 2
 ### Penjelasan soal
