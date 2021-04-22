@@ -278,7 +278,7 @@ void jalan(char perintah[], char *argv[]){
 }
 ```
 lalu membuat folder petshop di modul 2 sebagai directory pets.zip yang diextract nantinya. Setelah folder dibuat, maka pets.zip di unzip.
-Menggunakan command ( "-x", "*/*" )Karena  yang ingin di unzip adalah yang berupa file saja (yg berupa folder tidak di unzip).
+Menggunakan command ( `-x`, `*/*` ) Karena  yang ingin di unzip adalah yang berupa file saja (yg berupa folder tidak di unzip).
 ```c
 void duaa()
 {
