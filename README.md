@@ -253,7 +253,8 @@ E. Di setiap folder buatlah sebuah file "keterangan.txt" yang berisi nama dan um
 Pertama mendownload zip pets.zip terlebih dahulu dari drive sisop21-modul 2
 
 Lalu include header files
-```#include <stdio.h>
+```c
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -265,7 +266,7 @@ Lalu include header files
 #include <sys/stat.h>
 ```
 membuat fungsi jalan untuk menjalankan perintah nantinya ( menggabungkan fork dan exec)
-```
+```c
 void jalan(char perintah[], char *argv[]){
     pid_t child_id;
     int status;
@@ -278,7 +279,7 @@ void jalan(char perintah[], char *argv[]){
 ```
 lalu membuat folder petshop di modul 2 sebagai directory pets.zip yang diextract nantinya. Setelah folder dibuat, maka pets.zip di unzip.
 Menggunakan command ( "-x", "*/*" )Karena  yang ingin di unzip adalah yang berupa file saja (yg berupa folder tidak di unzip).
-```
+```c
 void duaa()
 {
     int status;
@@ -300,7 +301,8 @@ void duaa()
 ```
 setelah di unzip, file-file ini pun di kelompokkan berdasarkan jenisnya ( cat,dog,turtle, dll ). maka harus mengecek terlebih dahulu
 jenis hewannya berdasarkan nama filenya. Memisahkan terlebih dahulu nama file dari .jpg mengunakan fungsi cutnama
-```char* cutnama (char* s){
+```c
+char* cutnama (char* s){
     int i;
     char* new;
     for (i = 0; s[i] != '\0'; i++);
@@ -319,7 +321,7 @@ jenis hewannya berdasarkan nama filenya. Memisahkan terlebih dahulu nama file da
 Karena ada 1 foto memiliki 2 jenis dan nama (dipisahkan oleh ``_``) maka harus dipisahkan terlebih dahulu.
 Setelah itu antara jenis hewan; nama; umur juga dipisahkan menggunakan strtok. Setelah itu membuat folder berdasarkan jenis
 hewan yang sudah terdeteksi.
-```
+```c
 void duabcde()
 {
     int status;
@@ -372,7 +374,7 @@ void duabcde()
 ```
 Setelah folder sudah dibuat,foto tersebut dipindahkan sesuai folder jenisnya dan diberinama [namahewan].jpg.
 Karena ada 1 foto untuk 2 nama, maka kita harus mengcopynya terlebih dahulu. Foto-foto yang nantinya tidak digunakan akan dihapus di akhir.
-```
+```c
 char namahewan[20], id[10];
                         strcpy(namahewan, nama);
                         
@@ -395,7 +397,7 @@ char namahewan[20], id[10];
 
 Membuat file keterangan.txt di tiap folder yang nantinya berisi data-data hewan yaitu nama dan umur hewan tersebut sesuai format yang ditentukan
 di soal.
-```
+```c
 char txtLoc[100], ket[100];
                         strcpy(txtLoc, base);
                         stpcpy(ket, txtLoc);
@@ -416,7 +418,7 @@ char txtLoc[100], ket[100];
 ```
 
 Lalu file-file yang tidak digunakan dihapus dari folder petshop.
-```
+```c
 //hapus file gak butuh
                 if (infol->d_type == DT_REG){
                     char base[99] = "/home/vika/modul2/petshop/";
@@ -433,7 +435,10 @@ Lalu file-file yang tidak digunakan dihapus dari folder petshop.
 }
 ```
 ### Dokumentasi
+isi folder petshop yang berisi folder jenis-jenis hewan.
 ![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/94aba64921ebffbbffd996bbd5a223803513e3ff/soal2/isi%20petshop.jpg)
+
+salah satu isi folder jenis hewan (folder dog) yang berisi foto-foto dog dan keterangannya.
 ![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/94aba64921ebffbbffd996bbd5a223803513e3ff/soal2/isi%20dog.jpg)
 
 ### Kendala
