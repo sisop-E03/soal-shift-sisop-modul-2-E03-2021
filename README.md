@@ -458,6 +458,10 @@ isi folder petshop yang berisi folder jenis-jenis hewan.
 salah satu isi folder jenis hewan (folder dog) yang berisi foto-foto dog dan keterangannya.
 ![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/94aba64921ebffbbffd996bbd5a223803513e3ff/soal2/isi%20dog.jpg)
 
+Isi keterangan di folder dog yang berisi nama dan umur masing-masing dog
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/soal2/keterangan%20dog%201.jpg)
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/soal2/keterangan%20dog%202.jpg)
+
 ### Kendala
 1. Sempat error untuk bikin folder hewan (hanya bikin satu folder atau tidak sama sekali)
 2. Foto tidak pindah sesuai jenis hewan
