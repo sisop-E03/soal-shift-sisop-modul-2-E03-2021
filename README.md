@@ -201,8 +201,8 @@ if (pid1 == 0)
     char *username = malloc(33 * sizeof(char));
     cuserid(username);
 
-	 char *targetPath = malloc(50 * sizeof(char));
-	 sprintf(targetPath, "/home/%s/Lopyu_Stevany.zip", username);
+	char *targetPath = malloc(50 * sizeof(char));
+	sprintf(targetPath, "/home/%s/Lopyu_Stevany.zip", username);
 
     char *argv[] = {"zip", "-r", targetPath, filmPath, photoPath, musicPath, NULL};
     execv("/bin/zip", argv);
@@ -226,6 +226,23 @@ if (pid1 == 0)
 }
 ```
 Setelah zip selesai, maka program kembali di-fork. folder dan file zip yang dihasilkan process sebelumnya kecuali file zip akhir akan dihapus di process anaknya. 
+
+### Dokumentasi
+Isi folder `/tmp` di tanggal 9 April 2021 jam 16:22 atau 6 jam sebelum ulang tahun Stevany. Terdapat zip yang didownload dan folder hasil ekstraknya.
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal1/1.png)
+
+Isi folder `/tmp` di tanggal 9 April 2021 jam 22:22 atau waktu ulang tahun Stevany. Zip dan folder yang ada di gambar sebelumnya telah dihapus.
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal1/2.png)
+
+Isi folder `/home/[user]` di tanggal 9 April 2021 jam 22:22 atau waktu ulang tahun Stevany. Terdapat file `Lopyu_Stevany.zip`.
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal1/3.png)
+
+Isi dari file `Lopyu_Stevany.zip`.
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal1/4.png)
+
+### Kendala
+1. Fungsi `wait()` tidak menunggu status dari grandchild. Ketika process child selesai duluan sebelum grandchild, program parent akan langsung melanjutkan program sehingga bagian yang harus menunggu grandchild jadi tidak berjalan dengan benar.
+2. Ada beberapa bagian yang berjalan normal ketika dicoba di program yang bukan daemon tapi tidak berjalan ketika sudah di daemon, contohnya ketika menggunakan `wget` tanpa argumen `-o /dev/null`.
 
 ## Soal 2
 ### Penjelasan soal
