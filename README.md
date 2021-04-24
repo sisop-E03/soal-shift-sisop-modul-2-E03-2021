@@ -636,11 +636,14 @@ Untuk soal nomor 3d dan 3e, program akan langsung mengecek apakah argumen yang d
 Saat pertama membuat program killer ini, program masih belum bisa dieksekusi, jadi harus diberikan command ```bash chmod +x killer.sh``` untuk menggubah mode file agar dapat dieksekusi.
 
 ### Dokumentasi
+Hasil akhir folder yang telah di-zip dan program killer
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal3/1.png)
 
-![alt text]()
+Hasil download gambar dan membuat file status.txt pada tiap folder
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal3/2.png)
 
-salah satu isi folder jenis hewan (folder dog) yang berisi foto-foto dog dan keterangannya.
-![alt text]()
+Hasil status.txt
+![alt text](https://github.com/sisop-E03/soal-shift-sisop-modul-2-E03-2021/blob/master/images/soal3/3.png)
 
 ### Kendala
 1. Pada awalnya kesulitan melakukan debugging karena program langsung ditulis di dalam daemon
