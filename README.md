@@ -471,3 +471,178 @@ D.  Untuk mempermudah pengendalian program, pembimbing magang Ranora ingin progr
 E.  Pembimbing magang Ranora juga ingin nantinya program utama yang dibuat Ranora dapat dijalankan di dalam dua mode. Untuk mengaktifkan mode pertama, program harus dijalankan 	dengan argumen -z, dan Ketika dijalankan dalam mode pertama, program utama akan langsung menghentikan semua operasinya Ketika program Killer dijalankan. 
 	Sedangkan untuk mengaktifkan mode kedua, program harus dijalankan dengan argumen -x, dan Ketika dijalankan dalam mode kedua, program utama akan berhenti namun membiarkan 		proses di setiap direktori yang masih berjalan hingga selesai (Direktori yang sudah dibuat akan mendownload gambar sampai selesai dan membuat file txt, lalu zip dan delete 	direktori).
 
+### Penyelesaian
+Pertama dilakukan include semua library C yang akan dibutuhkan dalam program. Selanjutnya  dibuat sebuah daemon seperti pada modul 2 agar program yang dibuat dapat berjalan di belakang layar dan menjalankan perintah setiap 40 detik sekali.
+
+```c
+		time_t t = time(NULL);
+		struct tm tm = *localtime(&t);
+		char dirname[50];
+		sprintf(dirname, "%d-%02d-%02d_%02d:%02d:%02d",
+				tm.tm_year + 1900, 
+				tm.tm_mon + 1,
+				tm.tm_mday,
+				tm.tm_hour,
+				tm.tm_min,
+				tm.tm_sec);
+		
+		// 3a
+		cid = fork();
+		
+		if (cid < 0) {
+			exit(EXIT_FAILURE);
+		}
+		
+		if (cid == 0) {
+			char *args[] = {"mkdir", dirname, NULL};
+			execv("/bin/mkdir", args);
+		}
+```
+Pada soal 3a, dibuat sebuah variabel dirname dengan isi berupa timestamps dengan format seperti diatas sebagai nama folder yang akan dibuat. Lalu dilakukan fork dan exec untuk mengeksekusi pembuatan folder.
+
+```c
+			chdir(dirname);
+			for (i=0; i<10; i++) {
+				time_t t_2 = time(NULL);
+				struct tm tm_2 = *localtime(&t_2);
+				char filename[50], link[50];
+				sprintf(filename, "%d-%02d-%02d_%02d:%02d:%02d",
+						tm_2.tm_year + 1900, 
+						tm_2.tm_mon + 1,
+						tm_2.tm_mday,
+						tm_2.tm_hour,
+						tm_2.tm_min,
+						tm_2.tm_sec);
+				sprintf(link, "https://picsum.photos/%ld", (t_2%1000)+50);
+
+				cid_2 = fork();
+
+				if (cid_2 < 0) {
+					exit(EXIT_FAILURE);
+				}
+				
+				if (cid_2 == 0) {
+					char *args[] = {"wget", link, "-O", filename, "-o", "/dev/null", NULL};
+					execv("/usr/bin/wget", args);
+				}
+				sleep(5);
+
+			}
+```
+Pada soal 3b, diselesaikan dengan membuat iterasi sebanyak 10 kali. Pada tiap iterasi akan dibuat nama file yang akan didownload dengan metode yang sama dengan soal 3a, selain itu perlu dibuat link untuk mendownload gambar dengan menspesifikkan ukuran gambar sesuai dengan detik pada Epoch Unix.
+Untuk mengeksekusi perintah download, dilakukan fork dan exec. Lalu program akan sleep selama 5 detik untuk memberikan jeda tiap download.
+
+```c
+			FILE *fp;
+			int key;
+			char ch, zipname[50];
+
+			fp = fopen("status.txt", "w");
+			
+			if (fp == NULL) {
+				exit(EXIT_FAILURE);
+			}
+
+			char text_status[50] = "Download Success";
+			key = 5;
+
+			// Caesar chiper
+			for(i = 0; text_status[i] != '\0'; ++i){
+				ch = text_status[i];
+
+				if(ch >= 'a' && ch <= 'z'){
+					ch = ch + key;
+
+					if(ch > 'z'){
+						ch = ch - 'z' + 'a' - 1;
+					}
+
+					text_status[i] = ch;
+				}
+				else if(ch >= 'A' && ch <= 'Z'){
+					ch = ch + key;
+
+					if(ch > 'Z'){
+						ch = ch - 'Z' + 'A' - 1;
+					}
+
+					text_status[i] = ch;
+				}
+			}
+			
+			fputs(text_status, fp);
+			fclose(fp);
+
+			chdir("..");
+
+			cid_3 = fork();
+
+			strcpy(zipname, dirname);
+			strcat(zipname, ".zip");
+			if (cid_3 < 0) {
+				exit(EXIT_FAILURE);
+			}
+
+			if (cid_3 == 0) {
+				char *args[] = {"zip", "-r", zipname, dirname, NULL};
+				execv("/usr/bin/zip", args);
+			}
+			if (cid_3 > 0) {
+				while(wait(&status_3) > 0);
+				cid_4 = fork();
+				if (cid_4 < 0) {
+					exit(EXIT_FAILURE);
+				}
+				if (cid_4 == 0) {
+					char *args[] = {"rm", "-r", dirname, NULL};
+					execv("/usr/bin/rm", args);
+				}
+			}
+```
+Pada soal 3c, dibuat file baru dengan nama index.txt. File tersebut akan diisi dengan string "Download Success" yang sudah dilakukan enkripsi dengan algoritma Caecar Chiper dengan shift 5.
+Ketika tugas yang berada dalam folder sudah selesai, lalu program berpindah ke directory parent untuk melakukan zip terhadap folder tersebut. Perintah zip dilakukan dengan fork dan exec. Lalu terakhir program akan meunggu sampai perintah zip selesai dan akan menghapus folder tersebut dengan fork dan exec kembali.
+
+
+```c
+	if (argc != 2 || (argv[1][1] != 'x' && argv[1][1] != 'z')) {
+		printf("-- argumen tidak valid --\n\ndaftar agumen:\n1. -z : program akan menghentikan semua operasi ketika program killer dijalankan\n2. -x : program utama akan berhenti ketika program killer dijalankan namun membiarkan proses di setiap direktori masih berjalan hingga selesai\n\n");
+		exit(0);
+	}
+
+	FILE *killer;
+	killer = fopen("killer.sh", "w");
+	if (argv[1][1] == 'x') {
+		fprintf(killer, "#!/bin/bash\nps -ef | grep soal3 | grep -v grep | awk 'NR==1{print $2}' | xargs kill");
+	} else {
+		fprintf(killer, "#!/bin/bash\nps -ef | grep soal3 | grep -v grep | awk '{print $2}' | xargs kill");
+	}
+
+	fclose(killer);
+
+	int status_killer;
+	pid_t cid_killer;
+	cid_killer = fork();
+	if (cid_killer < 0) {
+		exit(EXIT_FAILURE);
+	}
+	if (cid_killer == 0) {
+		char *args[] = {"chmod", "+x", "killer.sh", NULL};
+		execv("/bin/chmod", args);
+	}
+	while(wait(&status_killer) > 0);
+```
+
+Untuk soal nomor 3d dan 3e, program akan langsung mengecek apakah argumen yang dimasukkan valid atau tidak saat pertama dijalankan. Jika valid maka program akan menggenerate sebuah file killer dalam bash script. Cara kerja program killer adalah dengan mencari process yang memiliki nama "soal3" dengan menggunakan grep. Lalu akan diambil id-nya dan process dengan id tersebut di-kill.
+Saat pertama membuat program killer ini, program masih belum bisa dieksekusi, jadi harus diberikan command ```bash chmod +x killer.sh``` untuk menggubah mode file agar dapat dieksekusi.
+
+### Dokumentasi
+
+![alt text]()
+
+salah satu isi folder jenis hewan (folder dog) yang berisi foto-foto dog dan keterangannya.
+![alt text]()
+
+### Kendala
+1. Pada awalnya kesulitan melakukan debugging karena program langsung ditulis di dalam daemon
+2. Beberapa fungsionalitas seperti mendowload gambar sempat error, pertintah tidak dapat berjalan saat di dalam daemon tapi dapat berjalan sukses saat tidak di dalam daemon
+3. Sempat lupa menuliskan perintah exit() pada child process sehingga process terus berjalan dan beranak-pinak menjadi banyak
